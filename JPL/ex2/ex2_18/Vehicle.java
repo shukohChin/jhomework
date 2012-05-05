@@ -1,14 +1,14 @@
 package ex2.ex2_18;
 
 public class Vehicle {
-	public long speed;
-	public double angle;
+	private long speed;
+	private double angle;
 	private String owner;
-	public static long nextId = 0;;
-	public long id;
+	private static long nextId = 0;;
+	private long id;
 
 	public Vehicle() {
-		nextId++;
+		id = nextId++;
 	}
 
 	public Vehicle(String owner) {
@@ -34,8 +34,10 @@ public class Vehicle {
 
 	@Override
 	public String toString() {
-		return " [speed=" + speed + ", angle=" + angle + ", owner="
-				+ owner + ", id=" + id + "]";
+		return  "id=" + id + "\n"
+				+ "owner=" + owner + "\n"
+				+ "speed=" + speed + "\n"
+				+ "angle=" + angle + "\n";
 	}
 
 	public static void main(String[] args) {
@@ -46,6 +48,6 @@ public class Vehicle {
 		bike.setSpeed(100);
 		bike.setAngle(30.0);
 
-		System.out.println("bike" + bike);
+		System.out.println("bike:\n" + bike);
 	}
 }

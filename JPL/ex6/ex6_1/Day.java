@@ -1,5 +1,0 @@
-package ex6.ex6_1;
-
-enum Day {
-	SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY,
-}

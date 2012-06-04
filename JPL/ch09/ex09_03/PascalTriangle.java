@@ -1,4 +1,6 @@
-package ch07.ex07_03;
+package ch09.ex09_03;
+
+import java.util.Scanner;
 
 public class PascalTriangle {
 	public static void main(String[] args) {
@@ -17,12 +19,12 @@ public class PascalTriangle {
 
 	public void calc() {
 		for (int i = 0; i < DEPTH; i++) {
-//			System.out.println("i=" + i);
+			System.out.println("i=" + i);
 
 			array[i] = new int[i + 1];
 
 			for (int j = 0; j < i + 1; j++) {
-//				System.out.println("j=" + j);
+				System.out.println("j=" + j);
 
 				if ((i - 1) >= 0 && (j - 1) >= 0 && j < i) {
 					array[i][j] = array[i - 1][j - 1] + array[i - 1][j];

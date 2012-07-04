@@ -1,4 +1,4 @@
-package gui2;
+package gui1_2;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -11,6 +11,15 @@ public class Transfer {
 
 	private int height;
 	private int width;
+
+	public Transfer() {
+		this.font = new Font("arial", Font.BOLD, 50);
+		this.fontSize = 50;
+		this.charColor = Color.BLACK;
+		this.bgColor = Color.WHITE;
+		this.height = 50;
+		this.width = 200;
+	}
 
 	public Font getFont() {
 		return font;
@@ -37,8 +46,8 @@ public class Transfer {
 		this.bgColor = bgColor;
 	}
 	public void setWidthAndHeight(int fontSize){
-		this.height = fontSize * 3;
-		this.width = this.height * 3;
+		this.height = fontSize;
+		this.width = this.height * 4;
 	}
 	public int getWidth() {
 		return this.width;

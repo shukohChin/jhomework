@@ -1,4 +1,4 @@
-package gui2;
+package gui1_2;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -62,7 +62,7 @@ public class DigitalClock extends Frame implements ActionListener {
 		menuExit.addActionListener(this);
 		menuFile.add(menuExit);
 
-		panel.setPreferredSize(new Dimension(450, 150));
+		panel.setPreferredSize(new Dimension(200, 50));
 		add(panel);
 		panel.setFont(new Font("arial", Font.BOLD, 50));
 		new Timer(C00, panel).start();

@@ -1,4 +1,4 @@
-package gui1;
+package gui1_1;
 
 import java.awt.Dimension;
 import java.awt.Font;

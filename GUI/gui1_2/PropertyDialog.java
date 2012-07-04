@@ -1,4 +1,4 @@
-package gui2;
+package gui1_2;
 
 import java.awt.Button;
 import java.awt.Choice;

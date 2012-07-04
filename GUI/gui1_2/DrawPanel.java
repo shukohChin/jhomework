@@ -1,4 +1,4 @@
-package gui2;
+package gui1_2;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,6 +41,10 @@ public class DrawPanel extends Panel implements ActionListener{
                 (getHeight() + L01.getAscent() - L01.getDescent()) / 2);
 
         g.drawImage(imgBuf, 0, 0, this);
+	}
+
+	public void update(Graphics g) {
+		paint(g);
 	}
 
 	public void setFont(Font font){

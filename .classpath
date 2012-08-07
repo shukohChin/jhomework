@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="JPL"/>
+	<classpathentry excluding="ch16/ex16_11/Game.java|ch16/ex16_11/PlayerLoader.java" kind="src" path="JPL"/>
+	<classpathentry kind="src" path="Interpret"/>
 	<classpathentry kind="src" path="GUI"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>

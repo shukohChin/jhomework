@@ -1,10 +1,8 @@
 package Ex16_07;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -16,7 +14,6 @@ import java.awt.event.FocusListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -57,7 +54,7 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 
 	public Gui(){
 		super("GUI");
-		setSize(new Dimension(770, 400));
+		setSize(new Dimension(800, 500));
 		setLocationRelativeTo(null);
 	    setResizable(false);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,12 +73,12 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		label_methodPara = new JLabel("引数:");
 		label_showArea = new JLabel("表示エリア↓↓↓↓↓");
 
-		text_className = new JTextField(18);
-		text_constPara = new JTextField(example, 18);
-		text_fieldName = new JTextField(6);
-		text_fieldVal = new JTextField(example, 8);
-		text_methodName = new JTextField(6);
-		text_methodPara = new JTextField(example, 8);
+		text_className = new JTextField(20);
+		text_constPara = new JTextField(example, 20);
+		text_fieldName = new JTextField(7);
+		text_fieldVal = new JTextField(example, 9);
+		text_methodName = new JTextField(7);
+		text_methodPara = new JTextField(example, 9);
 		text_fieldVal.setForeground(Color.LIGHT_GRAY);
 		text_constPara.setForeground(Color.LIGHT_GRAY);
 		text_methodPara.setForeground(Color.LIGHT_GRAY);
@@ -126,11 +123,11 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 
 		JScrollPane scrollPane = new JScrollPane(listTextArea);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setPreferredSize(new Dimension(330, 305));
+		scrollPane.setPreferredSize(new Dimension(330, 400));
 
 		JScrollPane scrollPane2 = new JScrollPane(textArea);
 		scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane2.setPreferredSize(new Dimension(360, 110));
+		scrollPane2.setPreferredSize(new Dimension(380, 205));
 
 
 		addComp(scrollPane, 5, 0, 1, 6);
@@ -164,77 +161,130 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		}else if(evt == button_instance){
 			String constParaText = text_constPara.getText();
 			String trimConst = constParaText.trim();
-			if(trimConst.equals("") || (constParaText == null)){
-				obj = interpretor.createInstanceWithoutArgs(className);
-				showMessage.append(obj.getClass() + "のインスタンスが生成された！\n");
-			}else{
+			if (trimConst.equals("") || (constParaText.equals(example))
+					|| (constParaText == null)) {
+				try {
+					obj = interpretor.createInstanceWithoutArgs(className);
+					showMessage.append(obj.getClass() + "のインスタンスが生成された！\n");
+				} catch (Throwable e2) {
+					showMessage.append(e2 + "\n");
+					textArea.setText(showMessage.toString());
+				}
+			} else {
 				String strs[] = constParaText.split(",");
-				Class<?>[] classType = Format.getClassTypes(strs);
-				Object[] args = Format.getArgs(strs);
+				if(strs.length % 2 != 0)
+					return;
+				Class<?>[] classType = null;
+				classType = Format.getClassTypes(strs);
+				Object[] args = null;
+				try {
+					args = Format.getArgs(strs);
+				} catch (Throwable e1) {
+					showMessage.append(e1 + "\n");
+					textArea.setText(showMessage.toString());
+				}
 				try {
 					obj = interpretor.createInstanceWithArgs(className, classType, args);
+					showMessage.append(obj.getClass() + "の引数付きインスタンスが生成された！\n");
 				} catch (Throwable e1) {
-					// TODO 自動生成された catch ブロック
-					e1.printStackTrace();
+					showMessage.append(e1 + "\n");
+					textArea.setText(showMessage.toString());
 				}
-				showMessage.append(obj.getClass() + "の引数付きインスタンスが生成された！\n");
 			}
 			textArea.setText(showMessage.toString());
 		}else if(evt == button_setField){
 			String fieldName = text_fieldName.getText();
 			String fieldVal = text_fieldVal.getText();
 			String strs[] = fieldVal.split(",");
-			Object[] args = Format.getArgs(strs);
-			interpretor.setField(obj, fieldName, args[0]);
-
-			Object result = interpretor.getField(obj, fieldName);
-			showMessage.append("フィールド " + fieldName + " の値は：" + result.toString() + "\n");
+			if(strs.length % 2 != 0)
+				return;
+			Object[] args = null;
+			try {
+				args = Format.getArgs(strs);
+			} catch (Throwable e2) {
+				showMessage.append(e2 + "\n");
+				textArea.setText(showMessage.toString());
+			}
+			try {
+				interpretor.setField(obj, fieldName, args[0]);
+			} catch (Throwable e2) {
+				showMessage.append(e2 + "\n");
+				textArea.setText(showMessage.toString());
+				return;
+			}
+			Object result = null;
+			String resultStr = null;
+			try {
+				result = interpretor.getField(obj, fieldName);
+				resultStr = result.toString();
+			} catch (Throwable e1) {
+				showMessage.append(e1 + "\n");
+				textArea.setText(showMessage.toString());
+				return;
+			}
+			showMessage.append("フィールド " + fieldName + " の値は："
+					+ resultStr + "\n");
 			textArea.setText(showMessage.toString());
 		}else if(evt == button_invokeMethod){
 			Object result = null;
 			String methodName = text_methodName.getText();
 			String methodPara = text_methodPara.getText();
 			String trimConst = methodPara.trim();
-			if(trimConst.equals("") || (methodPara == null)){
+			if(trimConst.equals("") || methodPara.equals(example) || (methodPara == null)){
 				try {
-					result = interpretor.invoke(obj, methodName, null, null);
+					result = interpretor.invokeWithoutArgs(obj, methodName);
+					showMessage.append(methodName + "()が呼び出された！\n" + "result: " + result + "\n");
 				} catch (Throwable e1) {
-					// TODO 自動生成された catch ブロック
-					e1.printStackTrace();
+					showMessage.append(e1 + "\n");
+					textArea.setText(showMessage.toString());
 				}
-				showMessage.append(result.getClass().getName() + "が呼び出された！\n");
+
 			}else{
 				String strs[] = methodPara.split(",");
-				Class<?>[] classType = Format.getClassTypes(strs);
-				Object[] args = Format.getArgs(strs);
+				if(strs.length % 2 != 0)
+					return;
+				Class<?>[] classType = null;
+				classType = Format.getClassTypes(strs);
+				Object[] args = null;
+				try {
+					args = Format.getArgs(strs);
+				} catch (Throwable e2) {
+					showMessage.append(e2 + "\n");
+					textArea.setText(showMessage.toString());
+				}
 				try {
 					result = interpretor.invoke(obj, methodName, classType, args);
+					showMessage.append(methodName + "()が呼び出された！\n" + "result: " + result + "\n");
 				} catch (Throwable e1) {
-					// TODO 自動生成された catch ブロック
-					e1.printStackTrace();
+					showMessage.append(e1 + "\n");
+					textArea.setText(showMessage.toString());
 				}
 				//showMessage.append(result.toString() + "が呼び出された！\n");
 			}
 			textArea.setText(showMessage.toString());
-
 		}
-
 	}
 
 	public void focusGained(FocusEvent e) {
 		// TODO 自動生成されたメソッド・スタブ
-		if(text_constPara.getText().equals(example))
-			text_constPara.setText("");
-		if(text_methodPara.getText().equals(example))
-			text_methodPara.setText("");
-		if(text_fieldVal.getText().equals(example))
-			text_fieldVal.setText("");
-		text_constPara.setForeground(Color.BLACK);
-		text_methodPara.setForeground(Color.BLACK);
-		text_fieldVal.setForeground(Color.BLACK);
+		Object fEvt = e.getSource();
+		if(fEvt == text_constPara){
+			if(text_constPara.getText().equals(example))
+				text_constPara.setText("");
+			text_constPara.setForeground(Color.BLACK);
+		}else if(fEvt == text_methodPara){
+			if(text_methodPara.getText().equals(example))
+				text_methodPara.setText("");
+			text_methodPara.setForeground(Color.BLACK);
+		}else if(fEvt == text_fieldVal){
+			if(text_fieldVal.getText().equals(example))
+				text_fieldVal.setText("");
+			text_fieldVal.setForeground(Color.BLACK);
+		}
 	}
 
 	public void focusLost(FocusEvent e) {
 		// TODO 自動生成されたメソッド・スタブ
+
 	}
 }

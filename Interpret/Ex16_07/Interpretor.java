@@ -1,27 +1,30 @@
 package Ex16_07;
 
+import java.awt.Color;
 import java.awt.Frame;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class Interpretor {
-	Class<?> cls;
-
 	//インスタンス生成
-	public Object createInstanceWithoutArgs(String className){
+	public Object createInstanceWithoutArgs(String className) throws Throwable{
+		Class<?> c = null;
+		Throwable failure;
 		try {
-			cls = Class.forName(className);
+			c = Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+//			throw new ClassNotFoundException(className + "クラスが見つからない！", e);
+			failure = e;
+			throw failure;
 		}
 
 		Object obj;
 		try {
-			obj = cls.newInstance();
+			obj = c.newInstance();
 		} catch (InstantiationException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
@@ -32,41 +35,41 @@ public class Interpretor {
 
 	public Object createInstanceWithArgs(String className, Class<?>[] types, Object[] args) throws Throwable{
 		Class<?> c = null;
-
+		Throwable failure;
 		try {
 			c = Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			System.out.println(e);
-			return null;
+//			throw new ClassNotFoundException(className + "クラスが見つからない！", e);
+			failure = e;
+			throw failure;
 		}
-
 
 		Constructor<?> constructor = null;
 
 		try {
 			constructor = c.getConstructor(types);
 		} catch (SecurityException e) {
-			System.out.println(e);
-			return null;
+			failure = e;
+			throw failure;
 		} catch (NoSuchMethodException e) {
-			System.out.println(e);
-			return null;
+			failure = e;
+			throw failure;
 		}
 
 		try {
 			return constructor.newInstance(args);
 		} catch (IllegalArgumentException e) {
-			System.out.println(e);
-			return null;
+			failure = e;
+			throw failure;
 		} catch (InstantiationException e) {
-			System.out.println(e);
-			return null;
+			failure = e;
+			throw failure;
 		} catch (IllegalAccessException e) {
-			System.out.println(e);
-			return null;
+			failure = e;
+			throw failure;
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			throw e.getCause();
+			failure = e;
+			throw failure;
 		}
 
 	}
@@ -78,7 +81,6 @@ public class Interpretor {
 		try {
 			c = Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			// TODO 自動生成された catch ブロック
 			sb.append("クラスが見つからない！");
 			return sb.toString();
 		}
@@ -93,30 +95,67 @@ public class Interpretor {
 	}
 
 	//フィールド修正
-	public void setField(Object obj, String field, Object val){
+	public void setField(Object obj, String field, Object val) throws Throwable{
 		Class<? extends Object> c = obj.getClass();
+		Field f = null;
+		Throwable failure;
 		try {
-			Field f = c.getDeclaredField(field);
-			f.setAccessible(true);
-			f.set(obj, val);
-		} catch (Exception e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			f = c.getDeclaredField(field);
+		} catch (SecurityException e) {
+			failure = e;
+			throw failure;
+		} catch (NoSuchFieldException e) {
+			try{
+				f = c.getField(field);
+			}catch (SecurityException e2) {
+				failure = e2;
+				throw failure;
+			} catch (NoSuchFieldException e2) {
+				failure = e2;
+				throw failure;
+			}
+		}
+		f.setAccessible(true);
+		try {
+			if (Modifier.isFinal(f.getModifiers())) {
+				Field modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+				f.set(null, val);
+			}
+			if (Modifier.isStatic(f.getModifiers())) {
+				f.set(null, val);
+			} else {
+				f.set(obj, val);
+			}
+		} catch (IllegalArgumentException e) {
+			failure = e;
+			throw failure;
+		} catch (IllegalAccessException e) {
+			failure = e;
+			throw failure;
 		}
 	}
 
 	//特定なフィールド取得
-	public Object getField(Object obj, String field){
+	public Object getField(Object obj, String field) throws Throwable{
 		Class<? extends Object> c = obj.getClass();
 		Field f = null;
 		Object result = null;
+		Throwable failure;
 		try {
 			f = c.getDeclaredField(field);
 			f.setAccessible(true);
-			result = f.get(obj);
+			if (Modifier.isStatic(f.getModifiers())) {
+				result = f.get(null);
+			} else {
+				result = f.get(obj);
+			}
+
 		} catch (Exception e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			failure = e;
+			throw failure;
 		}
 		return result;
 	}
@@ -131,24 +170,66 @@ public class Interpretor {
 				m = c.getMethod(name, types);
 			} catch (SecurityException e) {
 				failure = e;
+				throw failure;
 			} catch (NoSuchMethodException e) {
-				failure = e;
+				try{
+					m = c.getDeclaredMethod(name, types);
+				}catch (SecurityException e2) {
+					failure = e2;
+					throw failure;
+				} catch (NoSuchMethodException e2) {
+					failure = e2;
+					throw failure;
+				}
 			}
 			m.setAccessible(true);
 			try {
 				result = m.invoke(obj, (Object[]) args);
 			} catch (IllegalArgumentException e) {
 				failure = e;
+				throw failure;
 			} catch (IllegalAccessException e) {
 				failure = e;
+				throw failure;
 			} catch (InvocationTargetException e) {
-				System.out.println(m);
 				failure = e.getCause();
 				throw failure;
 			}
 
 			return result;
 	}
+
+	public Object invokeWithoutArgs(Object obj, String name) throws Throwable{
+		Class<? extends Object> c = obj.getClass();
+		Throwable failure;
+		Method m = null;
+		Object result = null;
+		try {
+			m = c.getMethod(name);
+		} catch (SecurityException e) {
+			failure = e;
+			throw failure;
+		} catch (NoSuchMethodException e) {
+			failure = e;
+			throw failure;
+		}
+		m.setAccessible(true);
+		try {
+			result = m.invoke(obj);
+		} catch (IllegalArgumentException e) {
+			failure = e;
+			throw failure;
+		} catch (IllegalAccessException e) {
+			failure = e;
+			throw failure;
+		} catch (InvocationTargetException e) {
+			failure = e;
+			throw failure;
+		}
+
+		return result;
+	}
+
 
 	//コンストラクタ
 	public Object getConstructor(Object obj, Class<?>[] types, Object[] args) {
@@ -193,9 +274,38 @@ public class Interpretor {
 			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
+
+
 //		Frame frame = (Frame) interpret.createInstance("java.awt.Frame");
 //
-//		Object obj = interpret.createInstance("java.awt.Frame");
+		Object obj = null;
+		try {
+			obj = interpret.createInstanceWithoutArgs("java.awt.Frame");
+		} catch (Exception e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		} catch (Throwable e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		try {
+			interpret.invokeWithoutArgs(obj, "isResizable");
+		} catch (Throwable e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		try {
+			interpret.invoke(obj, "setBackground", new Class[]{Color.class}, new Object[]{Color.blue});
+		} catch (Throwable e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		try {
+			interpret.setField(obj, "serialVersionUID", "22222");
+		} catch (Throwable e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
 
 //		try {
 //			interpret.invoke(obj, "setVisible", new Class[]{boolean.class}, new Object[]{true});
@@ -203,7 +313,6 @@ public class Interpretor {
 //			// TODO 自動生成された catch ブロック
 //			e1.printStackTrace();
 //		}
-
 
 //		System.out.println(obj.getClass());
 ////		interpret.printField();
@@ -225,13 +334,19 @@ public class Interpretor {
 //		frame2.setVisible(true);
 //
 //
-//		String string = (String) interpret.createInstance("java.lang.String");
+//		String string = null;
 //		try {
-//			string = (String) Interpretor.invoke(string, "substring",
+//			string = (String) interpret.createInstanceWithoutArgs("java.lang.String");
+//		} catch (Exception e1) {
+//			// TODO 自動生成された catch ブロック
+//			e1.printStackTrace();
+//		}
+//		try {
+//			string = (String) interpret.invoke(string, "substring",
 //					new Class[] { int.class }, new Object[] { -1 });
 //		} catch (Throwable e) {
 //			// TODO 自動生成された catch ブロック
-//			e.printStackTrace();
+//			System.out.println(e.getCause().getCause());
 //		}
 	}
 }

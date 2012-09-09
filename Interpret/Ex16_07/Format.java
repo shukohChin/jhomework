@@ -12,15 +12,18 @@ public class Format {
 		map.put("long", long.class);
 		map.put("double", double.class);
 		map.put("float", float.class);
-		map.put("string", String.class);
+		map.put("String", String.class);
 		map.put("boolean", boolean.class);
-		map.put("color", Color.class);
 	}
 
-	public static Class<?>[] getClassTypes(String[] strs){
+	public static Class<?>[] getClassTypes(String[] strs) throws Throwable{
 		Class<?>[] classTypes = new Class[strs.length / 2];
 		for(int i = 0, j = 0; i < strs.length / 2; i++){
-			classTypes[i] = Format.changeFormat(strs[j]);
+			if(map.get(strs[j]) != null){
+				classTypes[i] = map.get(strs[j]);
+			}else{
+				classTypes[i] = Class.forName(strs[j]);
+			}
 			j += 2;
 		}
 		return classTypes;
@@ -31,7 +34,7 @@ public class Format {
 		Class<?> classType;
 		Throwable failure;
 		for (int i = 0, j = 1; i < strs.length / 2; i++) {
-			classType = Format.changeFormat(strs[j - 1]);
+			classType = map.get(strs[j - 1]);
 			try {
 				if (classType == int.class) {
 					args[i] = Integer.parseInt(strs[j]);
@@ -43,12 +46,10 @@ public class Format {
 					args[i] = Float.parseFloat(strs[j]);
 				} else if (classType == boolean.class) {
 					args[i] = Boolean.parseBoolean(strs[j]);
-				} else if(classType == Color.class){
-					Field f = classType.getField(strs[j]);
-					args[i] = (Color)f.get(null);
-					System.out.println(args[i]);
-				} else {
+				} else if (classType == String.class){
 					args[i] = strs[j];
+				} else {
+					args[i] = Gui.map.get(strs[j]);
 				}
 			} catch (Exception e) {
 				failure = e;
@@ -58,11 +59,4 @@ public class Format {
 		}
 		return args;
 	}
-
-	//クラスオブジェクトを出す
-	private static Class<?> changeFormat(String str){
-		String strLow = str.toLowerCase();
-		return(map.get(strLow));
-	}
-
 }

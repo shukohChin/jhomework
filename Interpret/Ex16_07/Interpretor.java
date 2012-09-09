@@ -2,6 +2,7 @@ package Ex16_07;
 
 import java.awt.Color;
 import java.awt.Frame;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -74,6 +75,35 @@ public class Interpretor {
 
 	}
 
+	//フィールドの値取得
+	public String getFieldVal(Object obj) throws Throwable{
+		Class<? extends Object> c = obj.getClass();
+		StringBuilder sb = new StringBuilder();
+		Field[] fs = null;
+		Object result = null;
+		Throwable failure;
+		try {
+			fs = c.getDeclaredFields();
+			for(Field f : fs) {
+				f.setAccessible(true);
+				String decl = f.toString();
+				sb.append(strip2(decl));
+				if (Modifier.isStatic(f.getModifiers())) {
+					result = f.get(null);
+				} else {
+					result = f.get(obj);
+				}
+				sb.append(" = " + result + "\n");
+			}
+		} catch (Exception e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+			failure = e;
+			throw failure;
+		}
+		return sb.toString();
+	}
+
 	//メンバーを取得
 	public String getAllMembers(String className){
 		StringBuilder sb = new StringBuilder();
@@ -121,7 +151,6 @@ public class Interpretor {
 				Field modifiersField = Field.class.getDeclaredField("modifiers");
 				modifiersField.setAccessible(true);
 				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-				f.set(null, val);
 			}
 			if (Modifier.isStatic(f.getModifiers())) {
 				f.set(null, val);
@@ -266,6 +295,17 @@ public class Interpretor {
 		return decl.replaceAll(str, "");
 	}
 
+	private static String strip2(String decl) {
+		int lastInd = decl.lastIndexOf(".");
+		String result = null;
+		if(decl.contains("[]")){
+			result = decl.substring(lastInd + 1, decl.length()) + "[]";
+		}else{
+			result = decl.substring(lastInd + 1, decl.length());
+		}
+		return result;
+	}
+
 	public static void main(String[] args){
 		Interpretor interpret = new Interpretor();
 		try {
@@ -281,6 +321,7 @@ public class Interpretor {
 		Object obj = null;
 		try {
 			obj = interpret.createInstanceWithoutArgs("java.awt.Frame");
+			interpret.getFieldVal(obj);
 		} catch (Exception e) {
 			// TODO 自動生成された catch ブロック
 			e.printStackTrace();

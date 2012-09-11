@@ -11,6 +11,20 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public class Interpretor {
+	//ゲットクラス
+	public Class<?> getInputClass(String className) throws Throwable{
+		Class<?> c = null;
+		Throwable failure;
+		try {
+			c = Class.forName(className);
+		} catch (ClassNotFoundException e) {
+//			throw new ClassNotFoundException(className + "クラスが見つからない！", e);
+			failure = e;
+			throw failure;
+		}
+		return c;
+	}
+
 	//インスタンス生成
 	public Object createInstanceWithoutArgs(String className) throws Throwable{
 		Class<?> c = null;
@@ -252,7 +266,7 @@ public class Interpretor {
 			failure = e;
 			throw failure;
 		} catch (InvocationTargetException e) {
-			failure = e;
+			failure = e.getCause();
 			throw failure;
 		}
 

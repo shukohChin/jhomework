@@ -1,7 +1,5 @@
 package ch02.ex02_16;
 
-import ch02.ex02_15.Vehicle;
-
 public class LinkedList {
 	private Object obj;
 	private LinkedList next;

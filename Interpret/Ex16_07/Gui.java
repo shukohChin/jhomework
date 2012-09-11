@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -25,6 +26,7 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 	Interpretor interpretor = new Interpretor();
 	StringBuilder showMessage = new StringBuilder();
 	Object obj = null;
+	Object[] objList = null;
 	static HashMap<String, Object> map = new HashMap<String, Object>();
 
 	private JLabel label_className;
@@ -67,7 +69,8 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		setSize(new Dimension(850, 500));
 		setLocationRelativeTo(null);
 	    setResizable(false);
-	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 	    //set layout
 	    layout = new GridBagLayout();
@@ -184,45 +187,68 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		String className = text_className.getText();
 		String objName = text_objName.getText();
 
-		if(evt == button_OK){
-			listTextArea.setText(interpretor.getAllMembers(className));
-		}else if(evt == button_instance){
+		if(evt == button_instance){
 			listTextArea.setText(interpretor.getAllMembers(className));
 			String constParaText = text_constPara.getText();
 			String trimConst = constParaText.trim();
-			if (trimConst.equals("") || (constParaText.equals(example))
-					|| (constParaText == null)) {
-				try {
-					objNow = interpretor.createInstanceWithoutArgs(className);
-					map.put(objName, objNow);
-					combo_objList.addItem(objName);
-					showMessage.append(objNow.getClass() + "のインスタンスが生成された！\n" + interpretor.getFieldVal(objNow) + "\n");
-				} catch (Throwable e2) {
-					showMessage.append(e2 + "\n");
-					textArea.setText(showMessage.toString());
+			int size = 0;
+			try {
+				size = Integer.valueOf(text_length.getText());
+			} catch (Exception ex) {
+				showMessage.append(ex.toString() + "sizeは1以上の半角数字を入力してください。");
+				return;
+			}
+			if (size <= 0) {
+				showMessage.append("sizeは1以上を指定してください。");
+				return;
+			}
+			try {
+				objList = (Object[]) Array.newInstance(interpretor.getInputClass(className), size);
+			} catch (NegativeArraySizeException e3) {
+				// TODO 自動生成された catch ブロック
+				e3.printStackTrace();
+			} catch (Throwable e3) {
+				// TODO 自動生成された catch ブロック
+				e3.printStackTrace();
+			}
+
+			for(int i = 0; i < size; i++){
+				//引数なしのオブジェクト生成
+				if (trimConst.equals("") || (constParaText.equals(example))	|| (constParaText == null)) {
+					try {
+						objNow = interpretor.createInstanceWithoutArgs(className);
+						map.put(objName, objNow);
+						showMessage.append(objNow.getClass() + "のインスタンスが生成された！\n" + interpretor.getFieldVal(objNow) + "\n");
+					} catch (Throwable e2) {
+						showMessage.append(e2 + "\n");
+						textArea.setText(showMessage.toString());
+					}
+					//引数ありのオブジェクト生成
+				} else {
+					String strs[] = constParaText.split(",");
+					if(strs.length % 2 != 0)
+						return;
+					Class<?>[] classType = null;
+					Object[] args = null;
+					try {
+						classType = Format.getClassTypes(strs);
+						args = Format.getArgs(strs);
+					} catch (Throwable e1) {
+						showMessage.append(e1 + "\n");
+						textArea.setText(showMessage.toString());
+					}
+					try {
+						objNow = interpretor.createInstanceWithArgs(className, classType, args);
+
+						showMessage.append(objNow.getClass() + "の引数付きインスタンスが生成された！\n" + interpretor.getFieldVal(objNow) + "\n");
+					} catch (Throwable e1) {
+						showMessage.append(e1 + "\n");
+						textArea.setText(showMessage.toString());
+					}
 				}
-			} else {
-				String strs[] = constParaText.split(",");
-				if(strs.length % 2 != 0)
-					return;
-				Class<?>[] classType = null;
-				Object[] args = null;
-				try {
-					classType = Format.getClassTypes(strs);
-					args = Format.getArgs(strs);
-				} catch (Throwable e1) {
-					showMessage.append(e1 + "\n");
-					textArea.setText(showMessage.toString());
-				}
-				try {
-					objNow = interpretor.createInstanceWithArgs(className, classType, args);
-					map.put(objName, objNow);
-					combo_objList.addItem(objName);
-					showMessage.append(objNow.getClass() + "の引数付きインスタンスが生成された！\n" + interpretor.getFieldVal(objNow) + "\n");
-				} catch (Throwable e1) {
-					showMessage.append(e1 + "\n");
-					textArea.setText(showMessage.toString());
-				}
+				objList[i] = objNow;
+				map.put(objName + "[" + i + "]", objNow);
+				combo_objList.addItem(objName + "[" + i + "]");
 			}
 			textArea.setText(showMessage.toString());
 		}else if(evt == button_obj){
@@ -232,6 +258,7 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 			listTextArea.setText(interpretor.getAllMembers(obj.getClass().getName()));
 			text_className.setText(obj.getClass().getName());
 			text_objName.setText(selectedObjName);
+			text_length.setText("");
 			text_constPara.setText(example);
 			text_constPara.setForeground(Color.LIGHT_GRAY);
 			showMessage.setLength(0);

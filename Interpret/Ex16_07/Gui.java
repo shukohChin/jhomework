@@ -144,7 +144,7 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		addComp(text_fieldVal, 3, 3, 1, 1);
 		addComp(text_methodPara, 3, 4, 1, 1);
 
-//		addComp(button_OK, 4, 0, 1, 1);
+		addComp(button_OK, 4, 0, 1, 1);
 		addComp(button_instance, 4, 1, 1, 1);
 		addComp(button_obj, 4, 2, 1, 1);
 		addComp(button_setField, 4, 3, 1, 1);
@@ -187,7 +187,9 @@ public class Gui extends JFrame implements ActionListener, FocusListener{
 		String className = text_className.getText();
 		String objName = text_objName.getText();
 
-		if(evt == button_instance){
+		if(evt == button_OK){
+			listTextArea.setText(interpretor.getAllMembers(className));
+		}else if(evt == button_instance){
 			listTextArea.setText(interpretor.getAllMembers(className));
 			String constParaText = text_constPara.getText();
 			String trimConst = constParaText.trim();

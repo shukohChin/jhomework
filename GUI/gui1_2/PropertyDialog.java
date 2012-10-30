@@ -22,7 +22,7 @@ public class PropertyDialog extends Dialog implements ActionListener, ItemListen
 
 //	private static PropertyDialog propertyDialog = new PropertyDialog();
 
-	Transfer transfer = new Transfer();
+	public Transfer transfer = new Transfer();
 
 	Choice fontName = new Choice();
 	Choice fontSize = new Choice();

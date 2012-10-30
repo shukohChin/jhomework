@@ -43,8 +43,8 @@ public class TranslateByte extends FilterInputStream{
     public static void main(String[] args)throws IOException{
     	byte from = (byte) args[0].charAt(0);
 		byte to   = (byte) args[1].charAt(0);
-		File in_f = new File("TranslateByte.java");
-		File out_f = new File("TranslateByte.java.translate");
+		File in_f = new File("TEST.java");
+		File out_f = new File("TEST.java.translate");
 		if(!in_f.exists()){
 			in_f.createNewFile();
 		}

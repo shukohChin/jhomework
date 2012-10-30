@@ -7,7 +7,7 @@ public class Ex13_05 {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(str.subSequence(0, refVal));
-		if(refVal != 0){
+		if(refVal != 0 && refVal != strLength){
 			sb.append(',');
 		}
 
@@ -23,5 +23,9 @@ public class Ex13_05 {
 
 	public static void main(String[] args){
 		System.out.println(replace("1234567890000000000"));
+		System.out.println(replace("1"));
+		System.out.println(replace("12"));
+		System.out.println(replace("123"));
+		System.out.println(replace("1234"));
 	}
 }

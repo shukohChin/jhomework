@@ -19,7 +19,7 @@ public class DataHandler {
 		}
 
 
-		// check to see if we remember the data
+		// 記憶されているかどうか
 		if (file.equals(lastFile.get())) {
 			data = lastData.get();
 			if (data != null)

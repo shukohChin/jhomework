@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch20.ex20_04.LineReader;
+
 public class LineSorter {
 	public static void main(String[] args) throws IOException{
 		FileReader fileReader = new FileReader("JPL/ch21/ex21_01/LineSorter.java");
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
+
 		List<String> list = new ArrayList<String>();
 
+		LineReader lineReader = new LineReader(fileReader);
+
 		String line;
-		while((line = bufferedReader.readLine()) != null){
+		while((line = lineReader.readLine()) != null){
 			list.add(line);
 		}
 
@@ -25,7 +29,7 @@ public class LineSorter {
 			stringArray[i] = (String)objectArray[i];
 		}
 
-		Arrays.sort(stringArray);
+		Arrays.sort(stringArray, new StringCompare());
 		for(String string : stringArray){
 			System.out.println(string);
 		}

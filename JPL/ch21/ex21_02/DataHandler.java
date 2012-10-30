@@ -1,36 +1,30 @@
 package ch21.ex21_02;
 
-import java.lang.ref.*;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 import java.io.File;
 class DataHandler {
-	private File lastFile; // last file read
-	//private WeakReference<byte[]>	lastData; // last data (maybe)
-	private WeakHashMap<byte[], File>	wmap = new WeakHashMap<byte[], File>(); // last data (maybe)
-	
+	private File lastFile;
+
+	private WeakHashMap<File, byte[]> wmap = new WeakHashMap<File, byte[]>();
+
 	byte[] readFile(File file) {
 		byte[] data = null;
-		// check to see if we remember the data
-		if (file.equals(lastFile)) {
-	    	for (Entry<byte[], File> entry : wmap.entrySet()) {  
-	    	    data = entry.getKey(); 
-	    	}  
-			if (data != null)
-				return data;
+
+		if (wmap.containsKey(lastFile)) {
+			data = wmap.get(lastFile);
+		      if (data != null)
+		        return data;
 		}
 
-		// don't remember it, read it in
 		data = readBytesFromFile(file);
 		lastFile = file;
-		//lastData = new WeakReference<byte[]>(data);
-		wmap.put(data, lastFile);
+		wmap.put(lastFile, data);
 		return data;
 	}
-	
-	
+
+
 	byte[] readBytesFromFile(File file){
 		return null;
-		
+
 	}
 }

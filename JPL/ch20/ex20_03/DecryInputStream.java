@@ -14,17 +14,17 @@ public class DecryInputStream extends FilterInputStream{
 
 	public int read() throws IOException {
 		int c = super.read();
-		return c == -1 ? c : c ^ b;
+		return c ^ b;
 	}
 
-	public int read(byte[] buf, int offset, int count) throws IOException {
-		int nread = super.read(buf, offset, count);
-		int last = offset + nread;
+	public static void main(String[] args) throws IOException{
+		byte key = 0;
+		DecryInputStream in = new DecryInputStream(System.in, key);
+		EncryptOutputStream out = new EncryptOutputStream(System.out, key);
 
-		for(int i = offset; i < last; i++){
-			buf[i] = (byte)(buf[i] ^ b);
+		int b;
+		while((b = in.read()) != -1) {
+			out.write(b);
 		}
-		return nread;
-
 	}
 }

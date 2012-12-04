@@ -185,11 +185,13 @@ public class PropertyDialog extends JDialog implements ActionListener, ItemListe
 	    charColor.setRenderer(renderer);
 		charColor.addItemListener(this);
 
+		DefaultComboBoxModel model2 = new DefaultComboBoxModel();
+		MyCellRenderer renderer2 = new MyCellRenderer();
 		for(int i = 0; i < color_item.length; i++){
-			model.addElement(new ComboLabel(color_item[i], icon_item[i]));
+			model2.addElement(new ComboLabel(color_item[i], icon_item[i]));
 		}
-		bgColor.setModel(model);
-		bgColor.setRenderer(renderer);
+		bgColor.setModel(model2);
+		bgColor.setRenderer(renderer2);
 		bgColor.addItemListener(this);
 
 	}
